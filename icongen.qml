@@ -139,24 +139,26 @@ ApplicationWindow {
 
         Label { text: "Sizes" }
         TextField {
-             text: "16 22 24 36"
-             onTextChanged: {
-                 var tok = text.split(" ");
-                 var biggest = 0
-                 var sizes = tok.map(function(s) {
-                     var size = parseInt(s)
-                     if (size > biggest)
-                         biggest = size
-                     return size
-                 })
-                 glyphsRepeater.model = sizes
-                 archetypeFrame.height = biggest + 8
-             }
+            Layout.minimumWidth: parent.width / 4
+            text: "16 22 24 36"
+            onTextChanged: {
+                var tok = text.split(" ");
+                var biggest = 0
+                var sizes = tok.map(function(s) {
+                    var size = parseInt(s)
+                    if (size > biggest)
+                        biggest = size
+                    return size
+                })
+                glyphsRepeater.model = sizes
+                archetypeFrame.height = biggest + 8
+            }
         }
 
         Label { text: "Unicode" }
         TextField {
             id: glyphCodpointField
+            Layout.fillWidth: true
             text: "0xF000"
             onEditingFinished: glpyhCodepoint = parseInt(text, 16)
         }
@@ -166,11 +168,12 @@ ApplicationWindow {
         Button { id: dirChooseButton; text: "Choose…"; onClicked: fileDialog.open() }
 
         Label { text: "Naming" }
-        TextField { id: namingPatternField; text: "u$x_$s.png" }
+        TextField { id: namingPatternField; Layout.minimumWidth: parent.width / 4; text: "u$x_$s.png" }
 
         Label {
             Layout.columnSpan: 2
             Layout.fillWidth: true
+            Layout.minimumWidth: parent.width / 3
             text: "Example: " + getFileName(0)
         }
 
@@ -191,7 +194,8 @@ ApplicationWindow {
             Layout.columnSpan: 4
             Layout.fillWidth: true
             spacing: 4
-            Button { text: "Primary Color"; onClicked: colorDialog.openFor(primaryColorSwatch) }
+            Button { text: "Primary Color"; onClicked: colorDialog.openFor(primaryColorSwatch)
+                anchors.verticalCenter: primaryColorSwatch.verticalCenter }
             Rectangle {
                 id: primaryColorSwatch
                 width: 40
@@ -200,7 +204,8 @@ ApplicationWindow {
                 border.color: "lightgrey"
             }
 
-            Button { text: "Secondary Color"; onClicked: colorDialog.openFor(secondaryColorSwatch) }
+            Button { text: "Secondary Color"; onClicked: colorDialog.openFor(secondaryColorSwatch)
+                anchors.verticalCenter: secondaryColorSwatch.verticalCenter }
             Rectangle {
                 id: secondaryColorSwatch
                 width: 40
@@ -209,7 +214,8 @@ ApplicationWindow {
                 border.color: "lightgrey"
             }
 
-            Button { text: "Background"; onClicked: colorDialog.openFor(backgroundColorSwatch) }
+            Button { text: "Background"; onClicked: colorDialog.openFor(backgroundColorSwatch)
+                anchors.verticalCenter: backgroundColorSwatch.verticalCenter }
             Rectangle {
                 id: backgroundColorSwatch
                 width: 40
