@@ -33,7 +33,7 @@ import QtQuick.Dialogs 1.1
 
 ApplicationWindow {
     id: window
-    width: 728; height: 728
+    width: 908; height: 720
     visible: true
 
     property string savePath: "."
@@ -86,6 +86,24 @@ ApplicationWindow {
         ret = ret.replace("$x", glpyhCodepoint.toString(16))
         ret = ret.replace("$s", glyphsRepeater.model[i].toString())
         return ret
+    }
+
+    function saveDone(filePath) {
+        console.log("saved " + filePath)
+    }
+
+    function exportImages() {
+        for (var i = 0; i < archetypeRow.children.length; ++i) {
+            var rect = archetypeRow.children[i]
+            if (rect.children.length > 0) {
+                var path = savePath + "/" + getFileName(i)
+                console.log(i + " trying to save " + path)
+                rect.grabToImage(function(result) {
+                    result.saveToFile(path)
+                    saveDone(path)
+                });
+            }
+        }
     }
 
     FileDialog {
@@ -214,6 +232,7 @@ ApplicationWindow {
                 width: parent.width - goButton.width - 4
 
                 Row {
+                    id: archetypeRow
                     anchors.centerIn: parent
                     spacing: 4
                     Repeater {
@@ -226,6 +245,8 @@ ApplicationWindow {
                             anchors.margins: 1
                             color: backgroundColorSwatch.color
                             Text {
+                                id: glpyhArchetype
+                                objectName: "glpyhArchetype"
                                 anchors.centerIn: parent
                                 font.pixelSize: modelData
                                 font.family: fontFamilyLabel.text
@@ -243,9 +264,9 @@ ApplicationWindow {
                 id: goButton
                 text: "Go!"
                 anchors.verticalCenter: archetypeFrame.verticalCenter
+                onClicked: exportImages()
             }
         }
-
 
         GridView {
             model: 1024
