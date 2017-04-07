@@ -98,10 +98,13 @@ ApplicationWindow {
             if (rect.children.length > 0) {
                 var path = savePath + "/" + getFileName(i)
                 console.log(i + " trying to save " + path)
-                rect.grabToImage(function(result) {
-                    result.saveToFile(path)
-                    saveDone(path)
-                });
+                // how to capture path for the function passed to grabToImage:
+                // http://stackoverflow.com/questions/30476721/passing-parameter-onclick-in-a-loop/
+                rect.grabToImage(function(path) {
+                    return function(result) {
+                        result.saveToFile(path)
+                        saveDone(path)
+                    }}(path));
             }
         }
     }
