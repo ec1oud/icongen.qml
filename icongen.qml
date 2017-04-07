@@ -88,11 +88,16 @@ ApplicationWindow {
         return ret
     }
 
-    function saveDone(filePath) {
-        console.log("saved " + filePath)
+    function saveDone(i, filePath) {
+        progressBar.value = i
+        if (progressBar.value == progressBar.to)
+            progressCloseTimer.start()
     }
 
     function exportImages() {
+        progressBar.to = archetypeRow.children.length - 2
+        progressLabel.text = "Saving…"
+        progressPopup.visible = true
         for (var i = 0; i < archetypeRow.children.length; ++i) {
             var rect = archetypeRow.children[i]
             if (rect.children.length > 0) {
@@ -100,11 +105,12 @@ ApplicationWindow {
                 console.log(i + " trying to save " + path)
                 // how to capture path for the function passed to grabToImage:
                 // http://stackoverflow.com/questions/30476721/passing-parameter-onclick-in-a-loop/
-                rect.grabToImage(function(path) {
+                rect.grabToImage(function(i, path) {
                     return function(result) {
+                        progressLabel.text += "\n" + path
                         result.saveToFile(path)
-                        saveDone(path)
-                    }}(path));
+                        saveDone(i, path)
+                    }}(i, path));
             }
         }
     }
@@ -126,6 +132,28 @@ ApplicationWindow {
         property var setColorOn: null
         function openFor(sth) { setColorOn = sth; open() }
         onAccepted: setColorOn.color = colorDialog.color
+    }
+    Popup {
+        id: progressPopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        ColumnLayout {
+            anchors.fill: parent
+            Label {
+                id: progressLabel
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+            }
+            ProgressBar {
+                id: progressBar
+                Layout.fillWidth: true
+                value: 0.5
+            }
+        }
+        Timer {
+            id: progressCloseTimer
+            onTriggered: progressPopup.visible = false
+        }
     }
 
     GridLayout {
