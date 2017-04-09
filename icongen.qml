@@ -35,6 +35,7 @@ ApplicationWindow {
     id: window
     width: 908; height: 720
     visible: true
+    title: "Icon Generator: " + fontFamilyLabel.text + " " + glyphCodpointField.text
 
     property string savePath: "."
     property int glyphStyle: styleModel.get(styleCombo.currentIndex).value // Text.Normal
@@ -181,10 +182,12 @@ ApplicationWindow {
         }
     }
 
+    Shortcut { sequence: StandardKey.Quit; onActivated: Qt.quit() }
+
     Component {
         id: colorPicker
         Row {
-            spacing: 2
+            spacing: 4
             property alias color: swatch.color
             property alias colorName: button.text
             Button { id: button; text: "Color"; onClicked: colorDialog.openFor(swatch) }
@@ -277,7 +280,8 @@ ApplicationWindow {
         Row {
             Layout.columnSpan: 3
             Layout.fillWidth: true
-            spacing: 4
+            Layout.minimumHeight: dirChooseButton.height
+            spacing: 6
 
             Item {
                 id: primaryColorPicker
