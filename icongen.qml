@@ -265,6 +265,14 @@ ApplicationWindow {
                 ListElement { key: "Sunken"; value: Text.Sunken }
             }
         }
+        SpinBox {
+            id: styleOffsetSB
+            from: 1
+            to: 4
+            value: 1
+            property real multiplier: value * (glyphStyle == Text.Sunken ? -1 : 1)
+            visible: styleCombo.currentIndex > 1
+        }
 
         Row {
             Layout.columnSpan: 3
@@ -286,6 +294,15 @@ ApplicationWindow {
                 height: 32
                 Component.onCompleted: colorPicker.createObject(this, {"colorName": "Highlight", "color": "white"})
                 visible: styleCombo.currentIndex > 0
+            }
+
+            Item {
+                id: shadowColorPicker
+                property color color: children.length > 0 ? children[0].color : "white"
+                implicitWidth: children.length > 0 ? children[0].implicitWidth : 0
+                height: 32
+                Component.onCompleted: colorPicker.createObject(this, {"colorName": "Shadow", "color": "darkgray"})
+                visible: styleCombo.currentIndex > 1
             }
 
             Item {
@@ -330,14 +347,36 @@ ApplicationWindow {
                                 color: backgroundColorPicker.color
                                 anchors.fill: parent
                                 Text {
+                                    id: shadow
+                                    anchors.centerIn: parent
+                                    anchors.verticalCenterOffset: styleOffsetSB.multiplier
+                                    anchors.horizontalCenterOffset: styleOffsetSB.multiplier
+                                    font.pixelSize: glpyhArchetype.font.pixelSize
+                                    font.family: glpyhArchetype.font.family
+                                    text: glyph
+                                    color: shadowColorPicker.color
+                                    visible: glyphStyle > Text.Outline
+                                }
+                                Text {
+                                    id: highlight
+                                    anchors.centerIn: parent
+                                    anchors.verticalCenterOffset: -styleOffsetSB.multiplier
+                                    anchors.horizontalCenterOffset: -styleOffsetSB.multiplier
+                                    font.pixelSize: glpyhArchetype.font.pixelSize
+                                    font.family: glpyhArchetype.font.family
+                                    text: glyph
+                                    color: highlightColorPicker.color
+                                    visible: glyphStyle > Text.Outline
+                                }
+                                Text {
                                     id: glpyhArchetype
                                     objectName: "glpyhArchetype"
                                     anchors.centerIn: parent
-                                    font.pixelSize: modelData
+                                    font.pixelSize: modelData - styleOffsetSB.value * 2
                                     font.family: fontFamilyLabel.text
                                     text: glyph
                                     color: primaryColorPicker.color
-                                    style: glyphStyle
+                                    style: glyphStyle == Text.Outline ? Text.Outline : Text.Normal
                                     styleColor: highlightColorPicker.color
                                 }
                             }
