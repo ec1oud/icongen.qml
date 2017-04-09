@@ -41,6 +41,7 @@ ApplicationWindow {
     property int glpyhCodepoint: 0xF000
     onGlpyhCodepointChanged: glyphCodpointField.text = "0x" + glpyhCodepoint.toString(16)
     property string glyph: fromCodePoint(glpyhCodepoint)
+    property url checkerboardImage
 
     /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
     function fromCodePoint() {
@@ -99,8 +100,9 @@ ApplicationWindow {
         progressLabel.text = "Saving…"
         progressPopup.visible = true
         for (var i = 0; i < archetypeRow.children.length; ++i) {
-            var rect = archetypeRow.children[i]
-            if (rect.children.length > 0) {
+            var img = archetypeRow.children[i]
+            if (img.children.length > 0) {
+                var rect = img.children[0]
                 var path = savePath + "/" + getFileName(i)
                 console.log(i + " trying to save " + path)
                 // how to capture path for the function passed to grabToImage:
@@ -115,6 +117,28 @@ ApplicationWindow {
         }
     }
 
+    Canvas {
+        id: checkerSquare
+        width: 10
+        height: 10
+        property color background: "white"
+        property color color: "lightgrey"
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.fillStyle = background;
+            ctx.fillRect(0, 0, width, height);
+
+            var boxSize = width / 2;
+            ctx.fillStyle = color;
+            ctx.rect(0, 0, boxSize, boxSize);
+            ctx.rect(boxSize, boxSize, boxSize, boxSize);
+            ctx.fill();
+        }
+        onPainted: checkerSquare.grabToImage(function(result) {
+                checkerboardImage = result.url;
+                checkerSquare.visible = false;
+            });
+    }
     FileDialog {
         id: fileDialog
         selectFolder: true
@@ -129,6 +153,7 @@ ApplicationWindow {
     }
     ColorDialog {
         id: colorDialog
+        showAlphaChannel: true
         property var setColorOn: null
         function openFor(sth) { setColorOn = sth; open() }
         onAccepted: setColorOn.color = colorDialog.color
@@ -153,6 +178,29 @@ ApplicationWindow {
         Timer {
             id: progressCloseTimer
             onTriggered: progressPopup.visible = false
+        }
+    }
+
+    Component {
+        id: colorPicker
+        Row {
+            spacing: 2
+            property alias color: swatch.color
+            property alias colorName: button.text
+            Button { id: button; text: "Color"; onClicked: colorDialog.openFor(swatch) }
+            Image {
+                width: 32
+                height: width
+                fillMode: Image.Tile
+                source: checkerboardImage
+                anchors.verticalCenter: button.verticalCenter
+                Rectangle {
+                    id: swatch
+                    anchors.fill: parent
+                    color: "black"
+                    border.color: "lightgrey"
+                }
+            }
         }
     }
 
@@ -219,37 +267,33 @@ ApplicationWindow {
         }
 
         Row {
-            Layout.columnSpan: 4
+            Layout.columnSpan: 3
             Layout.fillWidth: true
             spacing: 4
-            Button { text: "Primary Color"; onClicked: colorDialog.openFor(primaryColorSwatch)
-                anchors.verticalCenter: primaryColorSwatch.verticalCenter }
-            Rectangle {
-                id: primaryColorSwatch
-                width: 40
-                height: width
-                color: "black"
-                border.color: "lightgrey"
+
+            Item {
+                id: primaryColorPicker
+                property color color: children.length > 0 ? children[0].color : "black"
+                implicitWidth: children.length > 0 ? children[0].implicitWidth : 0
+                height: 32
+                Component.onCompleted: colorPicker.createObject(this, {"colorName": "Primary", "color": "black"})
             }
 
-            Button { text: "Secondary Color"; onClicked: colorDialog.openFor(secondaryColorSwatch)
-                anchors.verticalCenter: secondaryColorSwatch.verticalCenter }
-            Rectangle {
-                id: secondaryColorSwatch
-                width: 40
-                height: width
-                color: "grey"
-                border.color: "lightgrey"
+            Item {
+                id: highlightColorPicker
+                property color color: children.length > 0 ? children[0].color : "white"
+                implicitWidth: children.length > 0 ? children[0].implicitWidth : 0
+                height: 32
+                Component.onCompleted: colorPicker.createObject(this, {"colorName": "Highlight", "color": "white"})
+                visible: styleCombo.currentIndex > 0
             }
 
-            Button { text: "Background"; onClicked: colorDialog.openFor(backgroundColorSwatch)
-                anchors.verticalCenter: backgroundColorSwatch.verticalCenter }
-            Rectangle {
-                id: backgroundColorSwatch
-                width: 40
-                height: width
-                color: "white"
-                border.color: "lightgrey"
+            Item {
+                id: backgroundColorPicker
+                property color color: children.length > 0 ? children[0].color : "transparent"
+                implicitWidth: children.length > 0 ? children[0].implicitWidth : 0
+                height: 32
+                Component.onCompleted: colorPicker.createObject(this, {"colorName": "Background", "color": "transparent"})
             }
         }
 
@@ -275,22 +319,27 @@ ApplicationWindow {
                     Repeater {
                         id: glyphsRepeater
                         model: [16, 22, 24, 36]
-                        Rectangle {
+                        Image {
                             width: modelData
                             height: modelData
                             anchors.bottom: parent.bottom
                             anchors.margins: 1
-                            color: backgroundColorSwatch.color
-                            Text {
-                                id: glpyhArchetype
-                                objectName: "glpyhArchetype"
-                                anchors.centerIn: parent
-                                font.pixelSize: modelData
-                                font.family: fontFamilyLabel.text
-                                text: glyph
-                                color: primaryColorSwatch.color
-                                style: glyphStyle
-                                styleColor: secondaryColorSwatch.color
+                            fillMode: Image.Tile
+                            source: checkerboardImage
+                            Rectangle {
+                                color: backgroundColorPicker.color
+                                anchors.fill: parent
+                                Text {
+                                    id: glpyhArchetype
+                                    objectName: "glpyhArchetype"
+                                    anchors.centerIn: parent
+                                    font.pixelSize: modelData
+                                    font.family: fontFamilyLabel.text
+                                    text: glyph
+                                    color: primaryColorPicker.color
+                                    style: glyphStyle
+                                    styleColor: highlightColorPicker.color
+                                }
                             }
                         }
                     }
