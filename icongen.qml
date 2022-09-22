@@ -26,10 +26,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import QtQuick 2.8
-import QtQuick.Controls 2.1
-import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 ApplicationWindow {
     id: window
@@ -140,10 +140,9 @@ ApplicationWindow {
                 checkerSquare.visible = false;
             });
     }
-    FileDialog {
-        id: fileDialog
-        selectFolder: true
-        onAccepted: savePath = fileUrl
+    FolderDialog {
+        id: folderDialog
+        onAccepted: savePath = selectedFolder
     }
     FontDialog {
         id: fontDialog
@@ -154,10 +153,10 @@ ApplicationWindow {
     }
     ColorDialog {
         id: colorDialog
-        showAlphaChannel: true
+        options: ColorDialog.ShowAlphaChannel
         property var setColorOn: null
         function openFor(sth) { setColorOn = sth; open() }
-        onAccepted: setColorOn.color = colorDialog.color
+        onAccepted: setColorOn.color = colorDialog.selectedColor
     }
     Popup {
         id: progressPopup
@@ -244,7 +243,7 @@ ApplicationWindow {
 
 
         Label { text: "Save to" }
-        Button { id: dirChooseButton; text: "Choose…"; onClicked: fileDialog.open() }
+        Button { id: dirChooseButton; text: "Choose…"; onClicked: folderDialog.open() }
 
         Label { text: "Naming" }
         TextField { id: namingPatternField; Layout.minimumWidth: parent.width / 4; text: "u$x_$s.png" }
