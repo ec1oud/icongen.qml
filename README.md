@@ -7,9 +7,11 @@ path, you can run it directly (it's a QML script with a shebang line, like any
 shell, perl or python script). Should work fine with Qt 6.4 or newer.  (Older
 versions in git history were for Qt 5.8 or newer)
 
-So far it works best with FontAwesome, because it assumes the glyphs of interest
-are those with Unicode codepoints over 0xF000.  The font which you would
-like to use needs to be installed as a system font.
+So far it works best with icon fonts like FontAwesome or those that you can
+build on fontello.com, because it assumes the glyphs of interest are those with
+Unicode codepoints over 0xF000.  If the font that you would like to use is
+installed as a system font, use the Font… dialog to select it. Or you can
+choose a ttf or otf file with the File… dialog.
 
-<img src="screenshot.png" width="914">
+![screenshot](screenshot.png)
 

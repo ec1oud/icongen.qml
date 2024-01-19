@@ -144,11 +144,20 @@ ApplicationWindow {
         id: folderDialog
         onAccepted: savePath = selectedFolder
     }
+    FileDialog {
+        id: fontFileDialog
+        nameFilters: ["Font files (*.ttf *.otf)"]
+        onAccepted: fontLoader.source = selectedFile
+    }
+    FontLoader {
+        id: fontLoader
+        onNameChanged: fontFamilyLabel.text = fontLoader.name
+    }
     FontDialog {
         id: fontDialog
         currentFont: Qt.font({ family: "FontAwesome", pointSize: 24, weight: Font.Normal })
         onAccepted: {
-            fontFamilyLabel.text = fontDialog.font.family
+            fontFamilyLabel.text = fontDialog.selectedFont.family
         }
     }
     ColorDialog {
@@ -213,7 +222,10 @@ ApplicationWindow {
         anchors.margins: 4
 
         Label { id: fontFamilyLabel; text: "FontAwesome" }
-        Button { text: "Choose…"; onClicked: fontDialog.open() }
+        Row {
+            Button { text: "Font…"; onClicked: fontDialog.open() }
+            Button { text: "File…"; onClicked: fontFileDialog.open() }
+        }
 
         Label { text: "Sizes" }
         TextField {
