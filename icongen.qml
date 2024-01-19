@@ -1,4 +1,4 @@
-#!/bin/env qml
+#!/usr/bin/env qml
 
 /*
   Copyright (c) 2017 Shawn Rutledge <s@ecloud.org>
