@@ -35,13 +35,13 @@ ApplicationWindow {
     id: window
     width: 908; height: 720
     visible: true
-    title: "Icon Generator: " + fontFamilyLabel.text + " " + glyphCodpointField.text
+    title: "Icon Generator: " + fontFamilyLabel.text + " from " + codepointRangeCombo.currentValue.toString(16)
 
     property string savePath: "."
     property int glyphStyle: styleModel.get(styleCombo.currentIndex).value // Text.Normal
-    property int glpyhCodepoint: 0xF000
-    onGlpyhCodepointChanged: glyphCodpointField.text = "0x" + glpyhCodepoint.toString(16)
-    property string glyph: fromCodePoint(glpyhCodepoint)
+    property int glyphCodepoint: 0xF000
+    onGlyphCodepointChanged: glyphCodepointField.text = "0x" + glyphCodepoint.toString(16)
+    property string glyph: fromCodePoint(glyphCodepoint)
     property url checkerboardImage
 
     /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
@@ -85,7 +85,7 @@ ApplicationWindow {
 
     function getFileName(i) {
         var ret = namingPatternField.text
-        ret = ret.replace("$x", glpyhCodepoint.toString(16))
+        ret = ret.replace("$x", glyphCodepoint.toString(16))
         ret = ret.replace("$s", glyphsRepeater.model[i].toString())
         return ret
     }
@@ -246,14 +246,37 @@ ApplicationWindow {
         }
 
         Label { text: "Unicode" }
-        TextField {
-            id: glyphCodpointField
-            Layout.fillWidth: true
-            text: "0xF000"
-            onEditingFinished: glpyhCodepoint = parseInt(text, 16)
+        Row {
+            TextField {
+                id: glyphCodepointField
+                Layout.fillWidth: true
+                text: "0xF000"
+                onEditingFinished: glyphCodepoint = parseInt(text, 16)
+            }
+            ComboBox {
+                id: codepointRangeCombo
+                textRole: "text"
+                valueRole: "value"
+                model: [
+                    { value: 0xf000, text: qsTr("Private F0") },
+                    { value: 0xf400, text: qsTr("Private F4") },
+                    { value: 0xf800, text: qsTr("Private F8") },
+                    { value: 0xfc00, text: qsTr("Private FC") },
+                    { value: 0x2000, text: qsTr("Punctuation") },
+                    { value: 0x2400, text: qsTr("Symbols") },
+                    { value: 0x2800, text: qsTr("Braille") },
+                    { value: 0xe000, text: qsTr("Private E0") },
+                    { value: 0xe400, text: qsTr("Private E4") },
+                    { value: 0xe800, text: qsTr("Private E8") },
+                    { value: 0xeC00, text: qsTr("Private EC") },
+                    { value: 0x1f600, text: qsTr("Emoticons") },
+                    { value: 0x0000, text: qsTr("Western") },
+                    { value: 0x0400, text: qsTr("Cyrillic") },
+                ]
+            }
         }
 
-
+        // --- next row
         Label { text: "Save to" }
         Button { id: dirChooseButton; text: "Choose…"; onClicked: folderDialog.open() }
 
@@ -267,6 +290,7 @@ ApplicationWindow {
             text: "Example: " + getFileName(0)
         }
 
+        // --- next row
         Label { text: "Style" }
         ComboBox {
             id: styleCombo
@@ -423,14 +447,14 @@ ApplicationWindow {
                 border.color: "grey"
                 radius: 3
                 Text {
-                    text: fromCodePoint(modelData + 0xF000)
+                    text: fromCodePoint(modelData + codepointRangeCombo.currentValue)
                     anchors.centerIn: parent
                     font.pointSize: 18
                     font.family: fontFamilyLabel.text
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: glpyhCodepoint = modelData + 0xF000
+                    onClicked: glyphCodepoint = modelData + codepointRangeCombo.currentValue
                 }
             }
         }
